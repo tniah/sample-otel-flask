@@ -12,7 +12,7 @@ from app.models.base import DateTimeMixin
 
 class UserModel(BaseModel, DateTimeMixin, DataMixin):
     """Implements the User model."""
-    __tablename__ = 'user'
+    __tablename__ = 'users'
 
     # Attributes
     id = Column('id', Integer, primary_key=True, autoincrement=True)

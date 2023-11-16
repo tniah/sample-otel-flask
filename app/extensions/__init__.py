@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """This module holds Flask extensions."""
+from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
@@ -12,3 +13,4 @@ v1_api = Api(
     description='Internal Api v1.0 Specification',
     doc='/docs')
 migrate = Migrate()
+bcrypt = Bcrypt()

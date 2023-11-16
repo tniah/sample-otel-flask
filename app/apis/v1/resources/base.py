@@ -2,6 +2,7 @@
 """This module implements base/mixin classes for internal API resources."""
 from flask import jsonify
 
+from app.apis.v1.schemas.user import UserSchema
 from app.lib.definitions import HTTP_STATUS_CODE_CREATED
 from app.lib.definitions import HTTP_STATUS_CODE_OK
 from app.lib.errors import NotFoundError
@@ -11,6 +12,7 @@ from app.repos.user import UserRepository as UserRepo
 class ResourceMixin:
     """Mixin for API resources."""
     fields_registry = {
+        'users': UserSchema
     }
 
     def to_json(self, model, schema_cls=None, meta=None,

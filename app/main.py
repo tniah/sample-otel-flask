@@ -8,7 +8,7 @@ from flask_restx import Namespace
 import config
 from app.extensions import db
 from app.extensions import migrate
-from app.extensions import v1_api
+from app.extensions import v1_api, bcrypt
 from app.lib.errors import ApiHTTPError
 
 
@@ -39,6 +39,7 @@ def create_app(name=None, env=None):
     db.init_app(app=app)
     v1_api.init_app(app=app)
     migrate.init_app(app=app, db=db)
+    bcrypt.init_app(app=app)
 
     # Setup URL routes for the API
     for module_name in app.config['INSTALLED_MODULES']:

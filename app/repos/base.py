@@ -27,6 +27,21 @@ class BaseRepository:
         return bool(ret)
 
     @classmethod
+    def list(cls, page=1, page_size=50):
+        """Get a list of records in the datastore that matches the query.
+
+        Args:
+            page: The current page.
+            page_size: How many records returned on one page.
+        Returns:
+            A list of database model instances.
+        """
+        query = cls.db_model.query
+        total = query.count()
+        objs = query.offset((page - 1) * page_size).limit(page_size).all()
+        return total, objs
+
+    @classmethod
     def get(cls, **query):
         """Get a record in the datastore that matches the query.
 

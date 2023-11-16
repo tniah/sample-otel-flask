@@ -3,26 +3,52 @@
 from flask_restx import Resource
 
 from app.apis.v1.resources.base import ResourceMixin
+from app.apis.v1.schemas.user import UserCreateSchema
+from app.apis.v1.schemas.user import UserUpdateSchema
+from app.extensions import bcrypt
+from app.lib.decorators import consumes
+from app.lib.decorators import pagination
+from app.lib.decorators import use_args
+from app.lib.definitions import HTTP_STATUS_CODE_CREATED
+from app.lib.definitions import HTTP_STATUS_CODE_NO_CONTENT
+from app.lib.errors import BadRequestError
+from app.repos.user import UserRepository as UserRepo
 
 
 class UserListResource(Resource, ResourceMixin):
     """Resource to get list of users."""
 
-    def get(self):
+    @pagination
+    def get(self, page, page_size):
         """Handles GET request to the resource.
 
         Returns:
             List of users.
         """
-        pass
+        total, users = UserRepo.list(page=page, page_size=page_size)
+        meta = {
+            'pagination': {
+                'page': page,
+                'pageSize': page_size,
+                'total': total
+            }
+        }
+        return self.to_json(users, many=True, meta=meta)
 
-    def post(self):
+    @consumes('application/json')
+    @use_args(UserCreateSchema)
+    def post(self, payload):
         """Handles POST request to the resource
 
         Returns:
             Newly-created user.
         """
-        pass
+        if UserRepo.exists(username=payload['username']):
+            raise BadRequestError(message='Username has already been taken')
+
+        payload['password'] = bcrypt.generate_password_hash(payload['password'])
+        user = UserRepo.save(**payload)
+        return self.to_json(user, status_code=HTTP_STATUS_CODE_CREATED)
 
 
 class UserResource(Resource, ResourceMixin):
@@ -39,15 +65,24 @@ class UserResource(Resource, ResourceMixin):
         user = self.get_user_by_id(user_id, raise_exp=True)
         return self.to_json(user)
 
-    def patch(self, user_id):
+    @consumes('application/json')
+    @use_args(UserUpdateSchema)
+    def patch(self, payload, user_id):
         """Handles PATCH request to the resource.
 
         Args:
+            payload: HTTP body of the request.
             user_id: The unique identifier of the user to update.
         Returns:
             User object.
         """
-        pass
+        user = self.get_user_by_id(user_id, raise_exp=True)
+        if 'password' in payload:
+            payload['password'] = bcrypt.generate_password_hash(
+                payload['password'])
+
+        user = UserRepo.update(user, **payload)
+        return self.to_json(user)
 
     def delete(self, user_id):
         """Handles DELETE  request to the resource.
@@ -55,4 +90,5 @@ class UserResource(Resource, ResourceMixin):
         Args:
             user_id: The unique identifier of the user to delete.
         """
-        pass
+        UserRepo.delete_by_id(id=user_id, synchronize_session=False)
+        return '', HTTP_STATUS_CODE_NO_CONTENT

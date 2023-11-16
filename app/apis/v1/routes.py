@@ -12,7 +12,7 @@ routes = [
         'path': '/users',
         'resources': [
             (UserListResource, ''),
-            (UserResource, '/<string:user_id>')
+            (UserResource, '/<int:user_id>')
         ]
     }
 ]
