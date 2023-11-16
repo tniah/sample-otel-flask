@@ -4,6 +4,8 @@ from flask import jsonify
 
 from app.lib.definitions import HTTP_STATUS_CODE_CREATED
 from app.lib.definitions import HTTP_STATUS_CODE_OK
+from app.lib.errors import NotFoundError
+from app.repos.user import UserRepository as UserRepo
 
 
 class ResourceMixin:
@@ -55,3 +57,24 @@ class ResourceMixin:
         response = jsonify(schema)
         response.status_code = status_code
         return response
+
+    @staticmethod
+    def get_user_by_id(user_id, raise_exp=True):
+        """Get a single user by `user_id`.
+
+        Args:
+            user_id: The unique identifier of the user.
+            raise_exp: Set to `True` if you want to raise an exception
+                       when user_id does not exist.
+
+        Returns:
+            User object.
+
+        Raises:
+            NotFoundError: If user_id does not exist.
+        """
+        user = UserRepo.get(id=user_id)
+        if not user and raise_exp is True:
+            raise NotFoundError(message='No user found with this Id')
+
+        return user

@@ -6,6 +6,10 @@ base = os.path.abspath(os.path.join(here, '..'))
 
 DEBUG = False
 SECRET_KEY = 'mySecret'
+INSTALLED_MODULES = os.getenv(
+    'INSTALLED_MODULES',
+    ';'.join(['app.apis.v1'])
+).split(';')
 
 # Database
 DB_DRIVER = os.getenv('DB_DRIVER', 'postgresql+psycopg')
