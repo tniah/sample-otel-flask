@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Entry point for the application."""
 import importlib
 import os
 

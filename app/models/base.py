@@ -2,7 +2,10 @@
 """Implements base/mixin models for database models."""
 import json
 
-from sqlalchemy import Column, DateTime, func, Text
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import func
+from sqlalchemy import Text
 
 from app.extensions import db
 

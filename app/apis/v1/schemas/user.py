@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""This module implements User schema classes."""
 from marshmallow import fields
 from marshmallow import validate
 
