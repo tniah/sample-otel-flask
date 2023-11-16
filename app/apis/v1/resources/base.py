@@ -1,0 +1,57 @@
+# -*- coding: utf-8 -*-
+"""This module implements base/mixin classes for internal API resources."""
+from flask import jsonify
+
+from app.lib.definitions import HTTP_STATUS_CODE_CREATED
+from app.lib.definitions import HTTP_STATUS_CODE_OK
+
+
+class ResourceMixin:
+    """Mixin for API resources."""
+    fields_registry = {
+    }
+
+    def to_json(self, model, schema_cls=None, meta=None,
+                many=False, status_code=HTTP_STATUS_CODE_OK):
+        """Create JSON response from a database model.
+
+        Args:
+            model: Instance of a database model.
+            schema_cls: Class that inherits from marshmallow.schema.Schema.
+            meta: A dictionary holding any metadata for the result
+                  such as pagination.
+            many: Should be set to `True` if `model` is a collection
+                  so that the `model` will be serialized to a list.
+            status_code: Integer used as status_code in the response.
+
+        Returns:
+            Response in JSON format (instance of flask.wrappers.Response)
+        """
+        if many is True:
+            schema = {'data': []}
+        else:
+            schema = {'data': {}}
+
+        if model:
+            if not schema_cls:
+                try:
+                    schema_cls = self.fields_registry[model.__tablename__]
+                except AttributeError:
+                    schema_cls = self.fields_registry[model[0].__tablename__]
+
+            if many is True:
+                schema['data'] = list(schema_cls(many=True).dump(model))
+            else:
+                schema['data'] = schema_cls(many=False).dump(model)
+
+        if status_code in (HTTP_STATUS_CODE_OK, HTTP_STATUS_CODE_CREATED):
+            schema.update({
+                'code': status_code,
+                'message': 'OK'
+            })
+
+        if meta:
+            schema.update(meta)
+        response = jsonify(schema)
+        response.status_code = status_code
+        return response
