@@ -5,6 +5,7 @@ from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
 
+from app.extensions import bcrypt
 from app.models.base import BaseModel
 from app.models.base import DataMixin
 from app.models.base import DateTimeMixin
@@ -18,7 +19,7 @@ class UserModel(BaseModel, DateTimeMixin, DataMixin):
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     username = Column('username', String(255), nullable=False, unique=True)
     fullname = Column('fullname', String(255), nullable=True)
-    password = Column('password', String(255), nullable=False)
+    _password = Column('password', String(255), nullable=False)
     is_active = Column('is_active', Boolean, default=True)
 
     def __init__(self, username, password, fullname=None, is_active=True,
@@ -37,3 +38,11 @@ class UserModel(BaseModel, DateTimeMixin, DataMixin):
         self.fullname = fullname
         self.is_active = is_active
         self.data = data
+
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        self._password = bcrypt.generate_password_hash(value)

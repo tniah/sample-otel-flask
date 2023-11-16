@@ -5,7 +5,6 @@ from flask_restx import Resource
 from app.apis.v1.resources.base import ResourceMixin
 from app.apis.v1.schemas.user import UserCreateSchema
 from app.apis.v1.schemas.user import UserUpdateSchema
-from app.extensions import bcrypt
 from app.lib.decorators import consumes
 from app.lib.decorators import pagination
 from app.lib.decorators import use_args
@@ -46,7 +45,6 @@ class UserListResource(Resource, ResourceMixin):
         if UserRepo.exists(username=payload['username']):
             raise BadRequestError(message='Username has already been taken')
 
-        payload['password'] = bcrypt.generate_password_hash(payload['password'])
         user = UserRepo.save(**payload)
         return self.to_json(user, status_code=HTTP_STATUS_CODE_CREATED)
 
@@ -77,10 +75,6 @@ class UserResource(Resource, ResourceMixin):
             User object.
         """
         user = self.get_user_by_id(user_id, raise_exp=True)
-        if 'password' in payload:
-            payload['password'] = bcrypt.generate_password_hash(
-                payload['password'])
-
         user = UserRepo.update(user, **payload)
         return self.to_json(user)
 
